@@ -1,132 +1,154 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{% block title %}LOST PARADISE SHOP{% endblock %}</title>
-  
-  <script src="https://cdn.tailwindcss.com"></script>  
-  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-  <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>{% block title %}LOST PARADISE SHOP{% endblock %}</title>
 
-  <link rel="icon" type="image/png" href="{% static 'main/images/favicon.png' %}" />
-  <meta property="og:title" content="Lost Paradise SHOP" />
-  <meta name="description" content="Витончені ювелірні прикраси від Lost Paradise" />
-</head>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+		<script
+			src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"
+			defer
+		></script>
 
-<body class="bg-darkgray text-pearl font-sans min-h-screen flex flex-col">
-  <!-- Overlay and Mobile Menu -->
-  <div id="overlay" class="fixed inset-0 bg-black bg-opacity-60 z-40 md:hidden hidden"></div>
+		<link
+			rel="icon"
+			type="image/png"
+			href="{% static 'main/images/favicon.png' %}"
+		/>
+		<meta property="og:title" content="Lost Paradise SHOP" />
+		<meta
+			name="description"
+			content="Витончені ювелірні прикраси від Lost Paradise"
+		/>
+	</head>
 
-  <div id="mobileMenu" class="fixed top-0 left-0 w-72 h-full bg-darkgray z-50 md:hidden shadow-lg transform -translate-x-full transition-transform duration-300">
-    <div class="p-6">
-      <div class="flex justify-between items-center mb-8 text-gold font-display text-2xl tracking-wide">
-        LOST PARADISE <br /> SHOP
-        <button id="closeMenu" class="text-pearl hover:text-gold focus:outline-none text-3xl leading-none">&times;</button>
-      </div>
+	<body>
+		<!-- Overlay and Mobile Menu -->
+		<div id="overlay"></div>
 
-      <nav class="space-y-6">
-        <a href="{% url 'main:index' %}" 
-           hx-get="{% url 'main:index' %}" 
-           hx-target="#main-content" 
-           hx-push-url="true"
-           class="block text-lg font-semibold hover:text-gold {% if not current_category %}text-gold{% endif %}">
-          HOME
-        </a>
-        {% for category in categories %}
-        <a href="{% url 'main:catalog' category.slug %}" 
-           hx-get="{% url 'main:catalog' category.slug %}" 
-           hx-target="#main-content" 
-           hx-push-url="true"
-           class="block text-lg font-semibold hover:text-gold {% if current_category == category.slug %}text-gold{% endif %}">
-           {{ category.name|upper }}
-        </a>
-        {% endfor %}
-      </nav>
+		<div id="mobileMenu">
+			<div>
+				<div>
+					LOST PARADISE <br />
+					SHOP
+					<button id="closeMenu">&times;</button>
+				</div>
 
-      <div class="mt-12 space-y-4 text-pearl">
-        <button id="mobileSearchToggle" 
-                hx-get="{% url 'main:catalog_all' %}?show_search=true" 
-                hx-target="#mobile-search-wrapper" 
-                hx-swap="innerHTML"
-                class="uppercase tracking-wider hover:text-gold font-semibold">SEARCH</button>
+				<nav>
+					<a
+						href="{% url 'main:index' %}"
+						hx-get="{% url 'main:index' %}"
+						hx-target="#main-content"
+						hx-push-url="true"
+					>
+						HOME
+					</a>
+					{% for category in categories %}
+					<a
+						href="{% url 'main:catalog' category.slug %}"
+						hx-get="{% url 'main:catalog' category.slug %}"
+						hx-target="#main-content"
+						hx-push-url="true"
+					>
+						{{ category.name|upper }}
+					</a>
+					{% endfor %}
+				</nav>
 
-        <a href="#" class="uppercase tracking-wider hover:text-gold font-semibold">ACCOUNT</a>
-        <a href="#" id="mobileCart" class="uppercase tracking-wider hover:text-gold font-semibold">CART (0)</a>
-      </div>
-    </div>
-  </div>
+				<div>
+					<button
+						id="mobileSearchToggle"
+						hx-get="{% url 'main:catalog_all' %}?show_search=true"
+						hx-target="#mobile-search-wrapper"
+						hx-swap="innerHTML"
+					>
+						SEARCH
+					</button>
 
-  <!-- Header -->
-  <header class="sticky top-0 bg-darkgray shadow-md border-b border-gold/40 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-      <button id="menuToggle" class="text-gold md:hidden text-3xl focus:outline-none">&#9776;</button>
+					<a href="#">ACCOUNT</a>
+					<a href="#" id="mobileCart">CART (0)</a>
+				</div>
+			</div>
+		</div>
 
-      <a href="{% url 'main:index' %}" 
-         hx-get="{% url 'main:index' %}" 
-         hx-target="#main-content" 
-         hx-push-url="true"
-         class="text-gold font-display text-2xl tracking-wide font-semibold select-none">
-        LOST PARADISE <br /> SHOP
-      </a>
+		<!-- Header -->
+		<header>
+			<div>
+				<button id="menuToggle">&#9776;</button>
 
-      <nav class="hidden md:flex space-x-12 text-pearl font-semibold text-sm tracking-wider">
-        {% for category in categories %}
-        <a href="{% url 'main:catalog' category.slug %}" 
-           hx-get="{% url 'main:catalog' category.slug %}" 
-           hx-target="#main-content" 
-           hx-push-url="true"
-           class="hover:text-gold border-b-2 border-transparent {% if current_category == category.slug %}border-gold text-gold{% endif %} transition-colors duration-300">
-          {{ category.name|upper }}
-        </a>
-        {% endfor %}
-      </nav>
+				<a
+					href="{% url 'main:index' %}"
+					hx-get="{% url 'main:index' %}"
+					hx-target="#main-content"
+					hx-push-url="true"
+				>
+					LOST PARADISE <br />
+					SHOP
+				</a>
 
-      <div class="hidden md:flex items-center space-x-8 text-pearl">
-        <div id="desktop-search-wrapper" class="relative">
-          <button id="desktopSearchToggle" 
-                  hx-get="{% url 'main:catalog_all' %}?show_search=true" 
-                  hx-target="#desktop-search-wrapper" 
-                  hx-swap="innerHTML"
-                  class="uppercase tracking-wider hover:text-gold font-semibold">
-            SEARCH
-          </button>
-        </div>
-        <a href="#" class="uppercase tracking-wider hover:text-gold font-semibold">ACCOUNT</a>
-        <a href="#" id="desktopCart" class="uppercase tracking-wider hover:text-gold font-semibold">CART (0)</a>
-      </div>
+				<nav>
+					{% for category in categories %}
+					<a
+						href="{% url 'main:catalog' category.slug %}"
+						hx-get="{% url 'main:catalog' category.slug %}"
+						hx-target="#main-content"
+						hx-push-url="true"
+					>
+						{{ category.name|upper }}
+					</a>
+					{% endfor %}
+				</nav>
 
-      <a href="#" id="mobileCartHeader" class="text-gold md:hidden font-semibold text-xs">CART (0)</a>
-    </div>
-  </header>
+				<div>
+					<div id="desktop-search-wrapper">
+						<button
+							id="desktopSearchToggle"
+							hx-get="{% url 'main:catalog_all' %}?show_search=true"
+							hx-target="#desktop-search-wrapper"
+							hx-swap="innerHTML"
+						>
+							SEARCH
+						</button>
+					</div>
+					<a href="#">ACCOUNT</a>
+					<a href="#" id="desktopCart">CART (0)</a>
+				</div>
 
-  <!-- Main Content -->
-  <div id="main-content" class="flex-grow">
-    {% block content %}
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-pearl font-serif text-center select-none">
-      <h2 class="text-5xl font-display font-bold mb-6">LOST PARADISE</h2>
-      <p class="text-xl max-w-xl mx-auto mb-12">Відкрийте для себе вишукані ювелірні прикраси, які надихають та чарують.</p>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-        {% for category in categories %}
-        <a href="{% url 'main:catalog' category.slug %}" 
-           hx-get="{% url 'main:catalog' category.slug %}" 
-           hx-target="#main-content" 
-           hx-push-url="true"
-           class="block border border-gold rounded-lg py-12 hover:bg-gold hover:text-darkgray transition-colors duration-300 font-semibold text-lg">
-          {{ category.name|upper }}
-        </a>
-        {% endfor %}
-      </div>
-    </main>
-    {% endblock %}
-  </div>
+				<a href="#" id="mobileCartHeader">CART (0)</a>
+			</div>
+		</header>
 
-  <!-- Footer -->
-  <footer class="bg-darkgray text-gold text-center py-6 border-t border-gold/40 mt-12 select-none">
-    &copy; {{ now.year }} LOST PARADISE. All rights reserved.
-  </footer>
+		<!-- Main Content -->
+		<div id="main-content">
+			{% block content %}
+			<main>
+				<h2>LOST PARADISE</h2>
+				<p>
+					Відкрийте для себе вишукані ювелірні прикраси, які надихають та
+					чарують.
+				</p>
+				<div>
+					{% for category in categories %}
+					<a
+						href="{% url 'main:catalog' category.slug %}"
+						hx-get="{% url 'main:catalog' category.slug %}"
+						hx-target="#main-content"
+						hx-push-url="true"
+					>
+						{{ category.name|upper }}
+					</a>
+					{% endfor %}
+				</div>
+			</main>
+			{% endblock %}
+		</div>
 
-  <script src="{% static 'js/menu.js' %}"></script>
-</body>
+		<!-- Footer -->
+		<footer>&copy; {{ now.year }} LOST PARADISE. All rights reserved.</footer>
+
+		<script src="{% static 'js/menu.js' %}"></script>
+	</body>
 </html>

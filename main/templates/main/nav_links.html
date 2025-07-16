@@ -1,9 +1,10 @@
 {% for category in categories %}
-<a href="{% url 'main:catalog' category.slug %}"
-   hx-get="{% url 'main:catalog' category.slug %}"
-   hx-target="#main-content"
-   hx-push-url="true"
-   class="nav-link text-sm font-medium text-gray-900 hover:text-gray-700 {% if current_category == category.slug %}active{% endif %}">
-   {{ category.name|upper }}
+<a
+	href="{% url 'main:catalog' category.slug %}"
+	hx-get="{% url 'main:catalog' category.slug %}"
+	hx-target="#main-content"
+	hx-push-url="true"
+>
+	{{ category.name|upper }}
 </a>
 {% endfor %}

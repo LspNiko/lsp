@@ -1,0 +1,259 @@
+{% extends 'base.html' %} {% load static %} {% block content %}
+<main>
+	<!-- Breadcrumb -->
+	<div>
+		<nav>
+			<a
+				href="{% url 'main:index' %}"
+				hx-get="{% url 'main:index' %}"
+				hx-target="#main-content"
+				hx-push-url="true"
+				>HOME</a
+			>
+			<span>/</span>
+			<a
+				href="{% url 'main:catalog' product.category.slug %}"
+				hx-get="{% url 'main:catalog' product.category.slug %}"
+				hx-target="#main-content"
+				hx-push-url="true"
+				>{{ product.category.name|upper }}</a
+			>
+			<span>/</span>
+			<span>{{ product.name|upper }}</span>
+		</nav>
+	</div>
+
+	<div>
+		<!-- Product Images -->
+		<div>
+			<!-- Main Image -->
+			<div>
+				{% if product.main_image %}
+				<img src="{{ product.main_image.url }}" alt="{{ product.name }}" />
+				{% else %}
+				<div>
+					<span>No Image</span>
+				</div>
+				{% endif %}
+			</div>
+
+			<!-- Additional Images -->
+			{% if product.images.all %}
+			<div>
+				{% for image in product.images.all %}
+				<div>
+					<img
+						src="{{ image.image.url }}"
+						alt="{{ product.name }}"
+						onclick="changeMainImage(this.src)"
+					/>
+				</div>
+				{% endfor %}
+			</div>
+			{% endif %}
+		</div>
+
+		<!-- Product Info -->
+		<div>
+			<div>
+				<h1>{{ product.name|upper }}</h1>
+				<p>{{ product.material|upper }}</p>
+				<p>${{ product.price }}</p>
+			</div>
+
+			<!-- Sizes -->
+			{% if product.product_sizes.all %}
+			<div>
+				<h3>SIZE</h3>
+				<div>
+					{% for product_size in product.product_sizes.all %}
+					<div>
+						<input type="radio" name="size" id="size-{{ product_size.id }}"
+						value="{{ product_size.id }}" data-size="{{ product_size.size.name
+						}}" {% if product_size.stock == 0 %}disabled{% endif %} {% if
+						forloop.first and product_size.stock > 0 %}checked{% endif %}>
+						<label for="size-{{ product_size.id }}">
+							{{ product_size.size.name }}
+						</label>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+			{% else %}
+			<div>
+				<h3>SIZE</h3>
+				<p>No sizes available</p>
+			</div>
+			{% endif %}
+
+			<!-- Add to Cart -->
+			<div>
+				<button
+					id="add-to-cart-btn"
+					onclick="addToCart()"
+					{%
+					if
+					not
+					product.product_sizes.all
+					%}disabled{%
+					endif
+					%}
+				>
+					ADD TO CART
+				</button>
+
+				<button>ADD TO WISHLIST</button>
+			</div>
+
+			<!-- Product Details -->
+			<div>
+				<h3>DETAILS</h3>
+				<div>
+					<p>{{ product.description|linebreaks }}</p>
+					<p>Created: {{ product.created_at|date:"F d, Y" }}</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Related Products -->
+	{% if related_products %}
+	<div>
+		<h2>YOU MAY ALSO LIKE</h2>
+		<div>
+			{% for related_product in related_products %}
+			<div
+				class="product-card"
+				hx-get="{% url 'main:product_detail' related_product.slug %}"
+				hx-target="#main-content"
+				hx-push-url="true"
+			>
+				<div>
+					{% if related_product.main_image %}
+					<img
+						src="{{ related_product.main_image.url }}"
+						alt="{{ related_product.name }}"
+					/>
+					{% else %}
+					<div>
+						<span>No Image</span>
+					</div>
+					{% endif %}
+				</div>
+				<div>
+					<h3>{{ related_product.name|upper }}</h3>
+					<p>{{ related_product.material|upper }}</p>
+					<p>${{ related_product.price }}</p>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+	{% endif %}
+</main>
+
+<script>
+	let selectedSize = null
+	let selectedSizeId = null
+
+	function changeMainImage(src) {
+		const mainImg = document.querySelector('.aspect-square img')
+		if (mainImg) {
+			mainImg.src = src
+		}
+	}
+
+	function updateSelectedSize() {
+		const sizeRadios = document.querySelectorAll('.size-radio')
+		const checkedRadio = Array.from(sizeRadios).find(
+			radio => radio.checked && !radio.disabled
+		)
+		if (checkedRadio) {
+			selectedSize = checkedRadio.dataset.size
+			selectedSizeId = checkedRadio.value
+		} else {
+			selectedSize = null
+			selectedSizeId = null
+		}
+	}
+
+	function getCookie(name) {
+		let cookieValue = null
+		if (document.cookie && document.cookie !== '') {
+			const cookies = document.cookie.split(';')
+			for (let i = 0; i < cookies.length; i++) {
+				const cookie = cookies[i].trim()
+				if (cookie.substring(0, name.length + 1) === name + '=') {
+					cookieValue = decodeURIComponent(cookie.substring(name.length + 1))
+					break
+				}
+			}
+		}
+		return cookieValue
+	}
+
+	function showNotification(message) {
+		const notification = document.createElement('div')
+		notification.textContent = message
+		document.body.appendChild(notification)
+		setTimeout(() => {
+			notification.remove()
+		}, 3000)
+	}
+
+	function initializeSizeRadios() {
+		const sizeRadios = document.querySelectorAll('.size-radio')
+		const addToCartBtn = document.getElementById('add-to-cart-btn')
+
+		if (sizeRadios.length === 0) {
+			addToCartBtn.disabled = true
+			showNotification('No sizes available')
+			return
+		}
+
+		const availableRadios = Array.from(sizeRadios).filter(
+			radio => !radio.disabled
+		)
+
+		if (availableRadios.length === 0) {
+			addToCartBtn.disabled = true
+			showNotification('All sizes are out of stock')
+			return
+		}
+
+		// Ensure at least one valid radio is checked
+		let checkedRadio = Array.from(sizeRadios).find(
+			radio => radio.checked && !radio.disabled
+		)
+		if (!checkedRadio && availableRadios.length > 0) {
+			availableRadios[0].checked = true
+			checkedRadio = availableRadios[0]
+		}
+
+		// Update selected size
+		updateSelectedSize()
+
+		// Add event listeners
+		sizeRadios.forEach(radio => {
+			radio.addEventListener('change', function (e) {
+				if (this.disabled) return
+				updateSelectedSize()
+				addToCartBtn.disabled = false
+			})
+		})
+	}
+
+	document.addEventListener('DOMContentLoaded', initializeSizeRadios)
+	document.addEventListener('htmx:afterSwap', initializeSizeRadios)
+
+	const productCards = document.querySelectorAll('.product-card')
+	productCards.forEach(card => {
+		card.addEventListener('mouseenter', function () {
+			this.style.transform = 'translateY(-2px)'
+		})
+		card.addEventListener('mouseleave', function () {
+			this.style.transform = 'translateY(0)'
+		})
+	})
+</script>
+{% endblock %}
