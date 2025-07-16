@@ -1,0 +1,22 @@
+<!-- Home content for HTMX requests -->
+<main
+	class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-pearl font-serif text-center select-none"
+>
+	<h2 class="text-5xl font-display font-bold mb-6">LOST PARADISE</h2>
+	<p class="text-xl max-w-xl mx-auto mb-12">
+		Відкрийте для себе вишукані ювелірні прикраси, які надихають та чарують.
+	</p>
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+		{% for category in categories %}
+		<a
+			href="{% url 'main:catalog' category.slug %}"
+			hx-get="{% url 'main:catalog' category.slug %}"
+			hx-target="#main-content"
+			hx-push-url="true"
+			class="block border border-gold rounded-lg py-12 hover:bg-gold hover:text-darkgray transition-colors duration-300 font-semibold text-lg"
+		>
+			{{ category.name|upper }}
+		</a>
+		{% endfor %}
+	</div>
+</main>
