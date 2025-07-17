@@ -3,8 +3,7 @@
 	<!-- Breadcrumb and Filters -->
 	<div>
 		<h2>
-			{% if current_category %} {{ current_category|upper }} > NEW ARRIVALS {%
-			else %} ALL PRODUCTS {% endif %}
+			{% if current_category %} {{ current_category|upper }} > NEW ARRIVALS {%else %} ALL PRODUCTS {% endif %}
 		</h2>
 		<button
 			hx-get="{% if current_category %}{% url 'main:catalog' current_category %}{% else %}{% url 'main:catalog_all' %}{% endif %}?show_filters=true&color={{ filter_params.color|urlencode }}&min_price={{ filter_params.min_price|urlencode }}&max_price={{ filter_params.max_price|urlencode }}&size={{ filter_params.size|urlencode }}"
