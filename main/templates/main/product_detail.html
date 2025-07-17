@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {% load static %} {% block content %}
+{% extends 'main/base.html' %} {% load static %} {% block content %}
 <main>
 	<!-- Breadcrumb -->
 	<div>
@@ -69,9 +69,9 @@
 					{% for product_size in product.product_sizes.all %}
 					<div>
 						<input type="radio" name="size" id="size-{{ product_size.id }}"
-						value="{{ product_size.id }}" data-size="{{ product_size.size.name
-						}}" {% if product_size.stock == 0 %}disabled{% endif %} {% if
-						forloop.first and product_size.stock > 0 %}checked{% endif %}>
+						value="{{ product_size.id }}" data-size="{{ product_size.size.name }}"
+						{% if product_size.stock == 0 %}disabled{% endif %}
+						{% if	forloop.first and product_size.stock > 0 %}checked{% endif %}>
 						<label for="size-{{ product_size.id }}">
 							{{ product_size.size.name }}
 						</label>
