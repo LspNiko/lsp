@@ -59,16 +59,12 @@
 				</nav>
 
 				<div>
-					<button
-						id="mobileSearchToggle"
-						hx-get="{% url 'main:catalog_all' %}?show_search=true"
-						hx-target="#mobile-search-wrapper"
-						hx-swap="innerHTML"
-					>
-						SEARCH
-					</button>
+					<a href="#">SEARCH</a>
 
-					<a href="#">ACCOUNT</a>
+					<a href="{% url 'users:profile' %}" 
+          hx-get="{% url 'users:profile' %}" 
+          hx-target="#main-content" 
+          hx-push-url="true">ACCOUNT</a>
 					<a href="#" id="mobileCart">CART (0)</a>
 				</div>
 			</div>
@@ -113,7 +109,10 @@
 							SEARCH
 						</button>
 					</div>
-					<a href="#">ACCOUNT</a>
+					<a href="{% url 'users:profile' %}" 
+          hx-get="{% url 'users:profile' %}" 
+          hx-target="#main-content" 
+          hx-push-url="true">ACCOUNT</a>
 					<a href="#" id="desktopCart">CART (0)</a>
 				</div>
 

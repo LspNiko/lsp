@@ -45,7 +45,7 @@ class CustomUser(AbstractUser):
     return self.email
   
   def clean(self):
-    for field in ['company', 'addres1', 'addres2', 'city', 'country', 'province', 'postal_code', 'phone']:
+    for field in ['company', 'address1', 'address2', 'city', 'country', 'province', 'postal_code', 'phone']:
       value = getattr(self, field)
       if value:
         setattr(self, field, strip_tags(value))
