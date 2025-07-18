@@ -1,0 +1,12 @@
+<div>
+    <div>
+        <span>SUBTOTAL:</span>
+        <span>${{ cart.subtotal|floatformat:2 }}</span>
+    </div>
+    <a href="{% url 'orders:checkout' %}" 
+       hx-get="{% url 'orders:checkout' %}" 
+       hx-target="#main-content" 
+       hx-push-url="true">
+        Checkout
+    </a>
+</div>
