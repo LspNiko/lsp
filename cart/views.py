@@ -5,7 +5,7 @@ from django.template.response import TemplateResponse
 from django.contrib import messages
 from django.db import transaction
 from main.models import Product, ProductSize
-from .forms import AddToCartForm, UpdateCartForm
+from .forms import AddToCartForm
 import json
 from .models import Cart, CartItem
 
@@ -24,6 +24,19 @@ class CartMixin:
     request.session['cart_id'] = cart.id
     request.session.modified = True
     return cart
+  
+class CartModalView(CartMixin, View):
+  def get(self, request):
+    cart = self.get_cart(request)
+    context = {
+      'cart':cart,
+      'cart_item': cart.items.select_related(
+        'product',
+        'product_size__size',
+      ).order_by('-added_at')
+    }
+    return TemplateResponse(request, 'cart/cart_modal.html', context)
+    
   
 class AddToCartView(CartMixin, View):
   @transaction.atomic
@@ -120,7 +133,7 @@ class UpdateCartItemView(CartMixin, View):
   
   
   
-class RemveCartItemView(CartMixin, View):
+class RemoveCartItemView(CartMixin, View):
   def post(self, request, item_id):
     cart = self.get_cart(request)
     try:
@@ -150,8 +163,33 @@ class CartCountView(CartMixin, View):
     })
     
 class ClearCartView(CartMixin, View):
-  
+  def post(self, request):
+    cart = self.get_cart(request)
+    cart.clear()
     
+    request.session['cart_id'] = cart.id
+    request.session.modified = True
+    
+    if request.headers.get('HX-Request'):
+      return TemplateResponse(request, 'cart/cart_empty.html', {
+        'cart':cart
+      })
+    return JsonResponse({
+      'succes': True,
+      'message': 'Cart clear'
+    })
+    
+class CartSummaryView(CartMixin, View):
+  def get(self, request):
+    cart = self.get_cart(request)
+    context = {
+      'cart':cart,
+      'cart_items': cart.items.select_related(
+        'product',
+        'product_size__size'
+      ).order_by('-added_at')
+    }
+    return TemplateResponse(request, 'cart/cart_summary.html', context)
       
       
     
